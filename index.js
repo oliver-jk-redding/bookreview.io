@@ -11,6 +11,7 @@ var bodyParser     = require('body-parser') // parse request bodies
 var path           = require('path') // work with file paths
 var methodOverride = require('method-override') // allow put, delete through post
 var request = require('request')
+var fs = require('fs')
 
 var app = express() // create the express application
 var server = require('http').createServer(app) // create the server
@@ -94,6 +95,7 @@ app.get('/movies/movie/:id', function(req,res){
 
 app.post('/movies/movie/:id', function(req, res) {
   console.log('req.body: ', req.body)
+  fs.writeFile()
 })
 
 // Start the app only when run with npm start
