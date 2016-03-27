@@ -29,15 +29,15 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use(methodOverride('_method'))
 
 
-var getGenreList = function (callback) {
+function getGenreList (callback) {
   var query = ['https://api.themoviedb.org/3/genre/movie/list?api_key=6c4508f0bd28fb0a0b8c5809a2b897c9'].join('')
   request.get(query, function(err, response, body) {
     if(err) callback(err)
-    else return callback(null, JSON.parse(body))
+    else callback(null, JSON.parse(body))
   })
 }
 
-var getMovies = function (id, callback) {
+function getMovies (id, callback) {
   var query = ['https://api.themoviedb.org/3/genre/' + id + '/movies?api_key=6c4508f0bd28fb0a0b8c5809a2b897c9'].join('')
   request.get(query, function(err, response, body) {
     if(err) callback(err)
@@ -45,16 +45,22 @@ var getMovies = function (id, callback) {
   })
 }
 
-function getMovieId(name) {
+function getMovieIdByName(name, callback) {
   getGenreList(function(err, body) {
-    for(var mov in body.genres) 
-      if(mov.name === name)
-        console.log('YES')
-      else
-        console.log('NO')
+    if(err) {callback(err); return}
+    for(var mov in body.genres)
+      if(body.genres[mov].name === name)
+        callback(null, body.genres[mov].id)
   })
 }
-getMovieId('Action')
+
+function getMovieById(id, callback) {
+  var query = ['https://api.themoviedb.org/3/movie/' + id +'?api_key=6c4508f0bd28fb0a0b8c5809a2b897c9'].join('')
+  request.get(query, function(err, response, body) {
+    if(err) callback(err)
+    else callback(null, JSON.parse(body))
+  })
+}
 
 app.get('/', function (req, res) {
   res.redirect('/genres')
@@ -64,25 +70,30 @@ app.get('/genres', function (req, res) {
   getGenreList(function(err, body) {
     if(err) {console.log(err); return}
     var genres = body
-    res.render('index', genreList)
+    res.render('index', genres)
   })
 })
 
 app.get('/movies/:name', function(req, res) {
-  var id = getMovieId(req.params.name)
-  getMovies(id, function(err, body) {
+  getMovieIdByName(req.params.name, function(err, id) {
     if(err) {console.log(err); return}
-    var movies = body
-    movies.id = req.params.name
-    // console.log(movies)
-    res.render('movies', movies)
+    getMovies(id, function(err, movies) {
+      if(err) {console.log(err); return}
+      movies.id = req.params.name
+      res.render('movies', movies)
+    })
   })
 })
 
-app.get('/genres/:id', function(req,res){
-  // console.log(req.params); // try going to /cats/1
-  // var cat = findCat(Number(req.params.id))
-  res.render('movies', cat)
+app.get('/movies/movie/:id', function(req,res){
+  getMovieById(req.params.id, function(err, movie) {
+    if(err) { console.log(err); return }
+    res.render('movieShow', movie)
+  })
+})
+
+app.post('/movies/movie/:id', function(req, res) {
+  console.log('req.body: ', req.body)
 })
 
 // Start the app only when run with npm start

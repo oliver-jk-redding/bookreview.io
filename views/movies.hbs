@@ -1,8 +1,8 @@
-<h1>goodmovies</h1>
 <h2>{{this.id}}</h2>
 
 <ul>
  {{#each results}}
-  <li>{{this.original_title}}</li>
+  <li name='title'><a href='/movies/movie/{{this.id}}'>{{this.title}}</a></li>
+  <img src='https://image.tmdb.org/t/p/w185{{this.poster_path}}'>
  {{/each}}
 </ul>

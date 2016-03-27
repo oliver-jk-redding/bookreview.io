@@ -1,0 +1,9 @@
+<h2><a href='{{homepage}}' target='_blank'>{{title}}</a></h2>
+<p><strong>Rating:</strong> {{vote_average}}/10</p>
+<img src='https://image.tmdb.org/t/p/w185{{poster_path}}'>
+<p>{{overview}}</p>
+
+<form action="/movies/movie/:id" accept-charset="UTF-8" method="post">
+	<input type="submit" name="commit" value="Save">
+	<input type="radio" class='hidden' checked='checked' name="title" value="{{title}}">
+</form>
