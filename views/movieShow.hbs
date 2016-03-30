@@ -3,7 +3,9 @@
 <img src='https://image.tmdb.org/t/p/w185{{poster_path}}'>
 <p>{{overview}}</p>
 
-<form action="/movies/movie/:id" accept-charset="UTF-8" method="post">
+<form action="/genres/movie/:id" accept-charset="UTF-8" method="post">
 	<input type="submit" name="commit" value="Save">
+	<input type="radio" class='hidden' checked='checked' name="id" value="{{id}}">
 	<input type="radio" class='hidden' checked='checked' name="title" value="{{title}}">
+	<input type="radio" class='hidden' checked='checked' name="homepage" value="{{homepage}}">
 </form>

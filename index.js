@@ -29,6 +29,16 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(methodOverride('_method'))
 
+var favsPath = __dirname + '/./db/favourites.json'
+var saveFavs = function(data) {
+  fs.writeFileSync(favsPath, JSON.stringify(data))
+}
+var getFavs = function() {
+  var data = fs.readFileSync(favsPath).toString()
+  if(data === "")
+    return []
+  return JSON.parse(data)
+}
 
 function getGenreList (callback) {
   var query = ['https://api.themoviedb.org/3/genre/movie/list?api_key=6c4508f0bd28fb0a0b8c5809a2b897c9'].join('')
@@ -71,31 +81,53 @@ app.get('/genres', function (req, res) {
   getGenreList(function(err, body) {
     if(err) {console.log(err); return}
     var genres = body
+    res.status(200)
     res.render('index', genres)
   })
 })
 
-app.get('/movies/:name', function(req, res) {
+app.get('/genres/:name', function(req, res) {
   getMovieIdByName(req.params.name, function(err, id) {
     if(err) {console.log(err); return}
     getMovies(id, function(err, movies) {
       if(err) {console.log(err); return}
       movies.id = req.params.name
+      res.status(200)
       res.render('movies', movies)
     })
   })
 })
 
-app.get('/movies/movie/:id', function(req,res){
+app.get('/genres/movie/:id', function(req,res){
   getMovieById(req.params.id, function(err, movie) {
     if(err) { console.log(err); return }
+    res.status(200)
     res.render('movieShow', movie)
   })
 })
 
-app.post('/movies/movie/:id', function(req, res) {
-  console.log('req.body: ', req.body)
-  fs.writeFile()
+app.post('/genres/movie/:id', function(req, res) {
+  var favs = getFavs()
+  for(var i = 0; i<favs.length; i++) {
+    if(favs[i].id == req.body.id) {
+      res.send("Movie already in favourites")
+      return
+    }
+  }
+  var fav = {}
+  fav.id = req.body.id
+  fav.title = req.body.title
+  fav.homepage = req.body.homepage
+  favs.push(fav)
+  saveFavs(favs, favsPath)
+  res.status(200)
+  res.send('Movie saved!')
+})
+
+app.get('/favourites', function (req, res) {
+  var favs = {favs: getFavs()}
+  res.status(200)
+  res.render('favourites', favs)
 })
 
 // Start the app only when run with npm start
